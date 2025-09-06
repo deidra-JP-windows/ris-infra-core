@@ -37,7 +37,6 @@ sequenceDiagram
   CF-->>Member: レスポンス
   CF-->>App: レスポンス
   %% Discord連携
-  BackendLambda->>Discord: Discord API連携
   DataBatch->>Discord: Discord API連携（週1回）
   DataBatch->>BackendS3: データ保存
   %% SLI集計・アラート
