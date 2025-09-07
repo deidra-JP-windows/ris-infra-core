@@ -12,12 +12,13 @@ AWSを中心としたIaC（Infrastructure as Code）による環境管理、関�
 運用効率・可読性を重視し、必要以上の工数をかけない方針です。
 
 ## ディレクトリ・ファイル構成
-- `/documents/` : システム全体の設計・運用に関するドキュメント（構成図、要件定義書、仕様書等）
+- `/documents/systems` : システム全体の設計・運用に関するドキュメント（構成図、要件定義書、仕様書等）
 - `/riften_web_infra/terraform/00_modules/` : Terraformモジュール群
 - `/riften_web_infra/terraform/{ENV}/` : 環境別（dev, stg, prod）のTerraform構成
 - `/riften_web_infra/tools/` : 開発Tipsや補助ツール、検証用コード
 - `/build_command.sh` : 開発環境コンテナ操作用スクリプト
 - `/Dockerfile` : 開発環境用Dockerイメージ定義
+- `documents/knowhow/` : 開発や運用に関するノウハウ・手順書・設定例などのドキュメントを格納
 
 ## ドキュメント一覧
 要件整理書をたたき台として、他ドキュメントをAI（GitHub Copilot）で生成・更新しています。
