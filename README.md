@@ -57,6 +57,150 @@ flowchart TD
 - 必須: `wsl`, `git`, `docker`, `openssh`（鍵作成）
 - 推奨: VS Code（拡張機能「Dev Containers」）
 
+### 必要なソフトウェアのインストール
+※ ダウンロード済みの場合は飛ばしてください。
+
+#### Visual Studio Codeのインストール
+1. [Visual Studio Code公式サイト](https://code.visualstudio.com/download)にアクセス
+2. インストーラーをダウンロードし、指示に従って進める
+   - インストールオプションは以下を推奨：
+     - 「デスクトップ上にアイコンを作成する」にチェック
+     - 「PATH に追加する」にチェック
+     - 「エクスプローラーのファイル コンテキスト メニューに "Code で開く" アクションを追加する」にチェック
+3. インストール後の確認：
+   - PowerShellを開いて以下のコマンドを実行
+   ```bash
+   code --version
+   ```
+   - バージョン情報が表示されれば成功
+
+#### Docker Desktopのインストール
+1. [Docker Desktop公式サイト](https://docs.docker.com/desktop/setup/install/windows-install/)にアクセス
+2. インストーラーをダウンロードし、指示に従って進める
+3. インストール後の確認：
+   - PowerShellを開いて以下のコマンドを実行
+   ```bash
+   docker --version
+   ```
+   - バージョン情報が表示されれば成功
+
+#### Gitのインストール
+1. [Git公式サイト](https://git-scm.com/downloads)にアクセス
+2. インストーラーをダウンロードし、指示に従って進める
+3. インストール後の確認：
+   - PowerShellを開いて以下のコマンドを実行
+   ```bash
+   git --version
+   ```
+   - バージョン情報が表示されれば成功
+
+#### SSHキーの設定
+##### PowerShellまたはコマンドプロンプトを開き、ユーザーディレクトリ直下に移動
+```sh
+例
+cd /
+cd C:\Users\Admin
+```
+
+##### ED25519形式でパスワードありのSSH鍵を作成
+```sh
+ssh-keygen -t ed25519
+```
+※ コマンド実行時に「Enter passphrase (empty for no passphrase):」と表示されたら、任意のパスワードを入力してください。
+※ 作成後ユーザ直下に .ssh フォルダがない場合、手動で作成しコマンド実行により作成されたファイルを移動させてください。
+※ <img width="680" height="174" alt="image" src="https://github.com/user-attachments/assets/253cbc0e-6abc-45d4-b8a4-7113542fa072" />
+
+##### 公開鍵の内容を手動でコピー
+Visual Studio Code（VSCode）等で `%USERPROFILE%\.ssh\id_ed25519.pub` を開き、内容をすべてコピーします。
+
+##### GitHubにログインし、SSH鍵を登録
+   - GitHubの右上アイコン → [Settings] → [SSH and GPG keys] → [New SSH key]
+   - Titleに任意の名前、Keyに先ほどコピーした公開鍵を貼り付けて [Add SSH key] をクリック
+
+##### .ssh/configファイルを作成・編集し、以下を記載
+※ 拡張子は不要です。Visual Studio Code（VSCode）で開くと画像にあるボタンから作成できます。
+※ <img width="841" height="232" alt="image" src="https://github.com/user-attachments/assets/ac420d85-f64b-43ba-b31c-3a0dc61bab70" />
+※ <img width="39" height="44" alt="image" src="https://github.com/user-attachments/assets/58282739-8fba-4abe-b499-5a3cfd52792c" />
+```config
+Host github.com
+	IdentityFile ~/.ssh/id_ed25519
+	User git
+```
+
+##### 接続確認
+```sh
+ssh -T git@github.com
+```
+"Hi ユーザー名! You've successfully authenticated..." と表示されれば成功です。
+
+#### セットアップ手順
+##### リポジトリのクローン
+任意の場所に作業用のフォルダを作り、そのフォルダをVSCodeで開きます。
+左上のTerminal → New Terminalからターミナルを開き、このリポジトリをローカル環境にクローンします。  
+
+```bash
+git clone git@github.com:deidra-JP-windows/ris-bot-discord.git
+cd ris-bot-discord
+```
+
+##### 実行環境の初期セットアップ
+初回のセットアップ時は、以下のコマンドを実行します：
+
+```bash
+./build_command.sh first-up
+```
+
+このコマンドは以下の処理を実行します：
+- Dockerイメージのビルド
+- コンテナの作成と起動
+- SSH鍵の設定
+- リポジトリのクローン（コンテナ内）
+
+##### 通常の起動方法
+2回目以降の起動時は、以下のいずれかのコマンドを使用します：
+
+```bash
+# コンテナを新規作成して起動する場合
+./build_command.sh up
+
+# 既存のコンテナに接続する場合
+./build_command.sh exec
+```
+
+##### コンテナの停止と削除
+```bash
+# コンテナを停止する
+./build_command.sh stop
+
+# コンテナを停止して削除する
+./build_command.sh down
+```
+
+##### 環境の再構築
+Dockerfileに変更があった場合や環境を完全に作り直したい場合は、以下のコマンドを実行します：
+
+```bash
+./build_command.sh rebuild
+```
+
+## コマンド一覧
+
+| コマンド | 説明 |
+|----------|------|
+| `first-up` | 初回セットアップ用。イメージのビルド、コンテナの作成・起動、SSH設定を行います |
+| `up` | 新規コンテナを作成して起動します |
+| `exec` | 既存のコンテナに接続します（停止中の場合は再起動します） |
+| `stop` | コンテナを停止します |
+| `down` | コンテナを停止して削除します |
+| `rebuild` | 環境を完全に再構築します |
+
+## 注意事項
+
+- SSHの設定ファイルは `C:/Users/<ユーザー名>/.ssh` から自動的にマウントされます
+- コンテナ内では `/ris-bot-discord` ディレクトリにリポジトリがクローンされます
+- 環境変数 `MSYS_NO_PATHCONV=1` はWindowsでのパス変換問題を回避するために使用されています
+
+
 ### VS Code拡張機能（推奨）
 - Draw.io Integration : VS Code上でDraw.io編集
 - Markdown Preview Mermaid Support : Mermaid記法プレビュー
