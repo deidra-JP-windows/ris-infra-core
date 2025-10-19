@@ -11,7 +11,7 @@
   - 内部向け WEB サイト (フロントサイト) 
     - コミュニティメンバーのみアクセス可能
   - トークンで認証（ヘッダーにつけて送信）
-    - データ取得・保存の際は必ずCloudFrontを経由し、CloudFrontからトークン認証Lambda（Lambda@Edge）で認証を行う
+    - データ取得・保存の際は必ずWAF → CloudFrontを経由し、CloudFrontからトークン認証Lambda（Lambda@Edge）で認証を行う
     - 認証OKの場合のみS3（フロントweb用S3/バックエンド用S3）やバックエンドLambdaへのアクセスを許可
     - スマホアプリも同様にCloudFront→トークン認証Lambda→バックエンドLambda→S3の流れで認証・データ取得を行う
         - Discord に投稿されたおすすめ動画へのリンク
