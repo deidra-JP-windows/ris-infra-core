@@ -36,3 +36,100 @@
 - 作業完了後は速やかにパワー権限グループから除外
 
 この運用により、最小権限の原則を徹底しつつ、必要時のみ柔軟な権限昇格を可能としています。
+
+## 4. シークレット情報の管理（Parameter Store利用）
+
+### 方針
+- シークレット情報（APIキー、トークン、認証情報など）は、AWS Systems Manager Parameter Store（以下、Parameter Store）に手動で登録・保持します。
+- Parameter Storeは暗号化（KMS）を有効にし、必要最小限のIAM権限で取得できるようにします。
+- シークレットはリポジトリや環境変数などの平文での管理を行わず、必ずParameter Store経由で取得する運用とします。
+
+### 登録（手動）の手順（例）
+1. AWSコンソールにログインし、Systems Manager → Parameter Store を開く
+2. [Create parameter] をクリック
+3. Name: `/myapp/PROD/DB_PASSWORD` のように環境・用途が分かるパスで命名
+4. Type: SecureString を選択
+5. KMS key source: Default AWS key (aws/ssm) または専用のカスタマー管理キー（CMK）を指定
+6. Value: シークレットの値を入力して作成
+
+CLIから登録する例:
+```sh
+aws ssm put-parameter \
+    --name "/myapp/PROD/DB_PASSWORD" \
+    --value "your-db-password" \
+    --type "SecureString" \
+    --overwrite
+```
+
+### Lambda / EC2 からの取得方法（AWS SDK）
+- LambdaやEC2内のアプリケーションでは、AWS SDKを使用してParameter Storeからシークレットを取得します。下記はNode.js（aws-sdk v3）の例です。
+
+Node.js (aws-sdk v3) の例:
+```js
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+
+const client = new SSMClient({ region: process.env.AWS_REGION });
+
+async function getSecret(name) {
+    const cmd = new GetParameterCommand({ Name: name, WithDecryption: true });
+    const res = await client.send(cmd);
+    return res.Parameter?.Value;
+}
+
+// 使用例
+(async () => {
+    const dbPassword = await getSecret('/myapp/PROD/DB_PASSWORD');
+    console.log('got secret length:', dbPassword?.length);
+})();
+```
+
+Python (boto3) の例:
+```py
+import boto3
+
+ssm = boto3.client('ssm')
+
+def get_secret(name):
+        res = ssm.get_parameter(Name=name, WithDecryption=True)
+        return res['Parameter']['Value']
+
+db_password = get_secret('/myapp/PROD/DB_PASSWORD')
+print('got secret length:', len(db_password))
+```
+
+### IAM ポリシー（最小権限）
+- LambdaやEC2のインスタンスプロファイルにアタッチする最小権限のポリシー例:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath"
+            ],
+            "Resource": [
+                "arn:aws:ssm:ap-northeast-1:123456789012:parameter/myapp/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Resource": "arn:aws:kms:ap-northeast-1:123456789012:key/your-cmk-id"
+        }
+    ]
+}
+```
+
+※ 上記ARNやリージョン、アカウントID、CMKは環境に合わせて置き換えてください。
+
+### 運用上の注意点
+- Parameter Store の値はバージョン管理されます。値を更新すると古いバージョンは保持されますが、不要な古いバージョンは定期的に整理してください。
+- シークレットアクセスの監査を有効にするため、CloudTrailで Systems Manager と KMS の操作を記録してください。
+- シークレットを読み取る権限は最小限に絞り、アクセスが必要なリソースだけに付与してください。
+
