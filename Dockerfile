@@ -5,7 +5,7 @@ FROM python:3.12.11-alpine3.22
 ARG PRODUCT=terraform
 ARG TERRAFORM_VERSION=1.12.1
  
-RUN apk add --update --no-cache bash git openssh && \
+RUN apk add --update --no-cache bash git openssh jq curl && \
     apk add --update --virtual .deps --no-cache gnupg && \
     cd /tmp && \
     wget https://releases.hashicorp.com/${PRODUCT}/${TERRAFORM_VERSION}/${PRODUCT}_${TERRAFORM_VERSION}_linux_amd64.zip && \
