@@ -353,9 +353,8 @@ terraform destroy -var-file=terraform.tfvarss
 
 ### CI（継続的インテグレーション）
 - **Secret Scan（.github/workflows/secret_scan.yml）**
-  - developブランチへのPull Request作成・更新時に、Terraformディレクトリ配下のAWSキーやパスワード等の機密情報をgrepで検出し、見つかった場合はCIを失敗させます。
-  - コード内にシークレット情報が混入していないか自動チェックします。
-  - 誤検知を防ぐため、AWSリソース名に近いパターンは除外しています。
+  - developブランチへのPull Request作成・更新時に、Terraformディレクトリ配下のAWSアクセスキーID（`AKIA[0-9A-Z]{16}`形式）を正規表現でスキャンします。
+  - 検出された場合はCIを失敗させ、コード内へのシークレット情報の混入を防止します。
 
 ### CD（継続的デリバリー）
 - **Terraform Apply（.github/workflows/terraform_apply.yml）**
