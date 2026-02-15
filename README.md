@@ -368,6 +368,10 @@ GitHub Actionsは、CI（コード品質・セキュリティチェック）とC
 
 ## GitHub運用方針
 - **Collaborators and teams** で許可したユーザーのみWrite権限を付与し、不要なユーザーのpush権限を制限します。
+  - 以下の状態になります。
+    - 管理者のみが直接pushできる
+    - 外部からの変更は全てPull Request経由となる
+    - Pull Requestのマージ権限も管理者のみが持つ
 - **rulesetの導入**により、以下のブランチ保護・セキュリティ強化を実施します。
   - mainブランチへの直接push禁止（必ずPull Request経由）
   - Pull Request必須・レビュー必須（例: 1名以上の承認）
