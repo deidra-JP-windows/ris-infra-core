@@ -8,6 +8,7 @@
 
 ## 目次
 
+- [クイックスタート](#クイックスタート)
 - [プロジェクト概要](#プロジェクト概要)
 - [ディレクトリ・ファイル構成](#ディレクトリファイル構成)
 - [ドキュメント一覧](#ドキュメント一覧)
@@ -34,6 +35,64 @@
 - [FAQ（よくある質問）](#faqよくある質問)
 - [Copilot運用方針・自動生成規約](#copilot運用方針自動生成規約)
 - [サポート・問い合わせ](#サポート問い合わせ)
+
+# クイックスタート
+
+このセクションでは、最小限のステップで開発環境をセットアップし、すぐに開発を開始する手順を説明します。
+
+## 前提条件
+
+以下のソフトウェアがインストール済みであることを確認してください：
+- Git
+- Docker Desktop
+- Visual Studio Code
+- SSH鍵（GitHub用）
+
+詳細なインストール手順は[必要なソフトウェアのインストール](#必要なソフトウェアのインストール)を参照してください。
+
+## 5分で始める
+
+### 1. リポジトリのクローン
+
+```bash
+git clone git@github.com:deidra-JP-windows/ris-infra-core.git
+cd ris-infra-core
+```
+
+### 2. 開発環境の起動
+
+初回起動時：
+```bash
+./build_command.sh first-up
+```
+
+2回目以降：
+```bash
+./build_command.sh up
+# または既存のコンテナに接続
+./build_command.sh exec
+```
+
+### 3. Dev Containersで開く
+
+1. VS Codeでコマンドパレット（Ctrl+Shift+P / Cmd+Shift+P）を開く
+2. 「Dev Containers: Attach to Running Container」を選択
+3. ris-infra-core コンテナを選択
+
+### 4. 開発を開始
+
+```bash
+# 作業ブランチを作成
+git checkout develop
+git checkout -b feature/your-feature-name
+
+# Terraformの確認（例：dev環境）
+cd /ris-infra-core/riften_web_infra/terraform/dev
+terraform fmt -recursive
+terraform validate
+```
+
+詳細な開発フロー・ブランチ運用については[プッシュ](#プッシュ)および[ブランチ運用フロー](#ブランチ運用フロー)を参照してください。
 
 # プロジェクト概要
 このリポジトリは、ゲームコミュニティ用ウェブサイトのインフラ構築・運用を目的としています。
