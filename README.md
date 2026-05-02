@@ -460,6 +460,7 @@ GitHub Actionsは、CI（コード品質・セキュリティチェック）とC
     - 管理者のみが直接pushできる
     - 外部からの変更は全てPull Request経由となる
     - Pull Requestのマージ権限も管理者のみが持つ
+- **GitHub Actions の設定**（Approval for running fork pull request workflows）で **Require approval for all external contributors** を有効化し、外部コントリビューター起点のWorkflow実行はメンテナー承認必須とすることで、意図しないWorkflow実行を防止します。
 - **rulesetの導入**により、以下のブランチ保護・セキュリティ強化を実施します。
   - mainブランチへの直接push禁止（必ずPull Request経由）
   - Pull Request必須・レビュー必須（例: 1名以上の承認）
